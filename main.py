@@ -100,18 +100,18 @@ session.commit()
 
 # Homework 2
 publisher=input("Введите имя или идентификатор издателя - ")
-try:
+if publisher.isdigit():
     publisher = int(publisher)
-finally:
-    if type(publisher) == int:
-        subq1 = session.query(Publisher).filter(Publisher.id == publisher).subquery()
-    else:
-        subq1 = session.query(Publisher).filter(Publisher.name.like('%' + publisher + '%')).subquery()
-    subq2 = session.query(Book).join(subq1, Book.id_publisher == subq1.c.id).subquery()
-    subq3 = session.query(Stock).join(subq2, Stock.id_book == subq2.c.id).join(Stock.shop).subquery()
 
-    print('название книги | название магазина, в котором была куплена эта книга | стоимость покупки | дата покупки')
-    for el in session.query(Sale).join(subq3, Sale.id_stock == subq3.c.id):
-        print(el.stock.book.title, "|", el.stock.shop.name, "|", el.price, "|", el.date_sale)
+if type(publisher) == int:
+    subq1 = session.query(Publisher).filter(Publisher.id == publisher).subquery()
+else:
+    subq1 = session.query(Publisher).filter(Publisher.name.like('%' + publisher + '%')).subquery()
+subq2 = session.query(Book).join(subq1, Book.id_publisher == subq1.c.id).subquery()
+subq3 = session.query(Stock).join(subq2, Stock.id_book == subq2.c.id).join(Stock.shop).subquery()
 
-    session.close()
+print('название книги | название магазина, в котором была куплена эта книга | стоимость покупки | дата покупки')
+for el in session.query(Sale).join(subq3, Sale.id_stock == subq3.c.id):
+    print(el.stock.book.title, "|", el.stock.shop.name, "|", el.price, "|", el.date_sale)
+
+session.close()
